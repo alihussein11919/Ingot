@@ -63,6 +63,8 @@ Latest Prices | /v1/latest | Combined snapshot of all metals and currencies
 airflow/
 └── dags/
     └── metals_pipeline.py            # Scheduled DAG, runs every N minutes
+    <img width="1847" height="890" alt="image" src="https://github.com/user-attachments/assets/40b30c88-5289-456c-a051-d4ae07e218d9" />
+
 </code></pre>
 <h2>Setup</h2>
 <h3>1. Install dependencies</h3>
