@@ -1,0 +1,84 @@
+[2026-06-18T20:50:01.440+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-06-18T20:50:01.583+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: metals_ingestion_pipeline.collect_currency_rates scheduled__2026-06-18T20:40:00+00:00 [queued]>
+[2026-06-18T20:50:01.608+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: metals_ingestion_pipeline.collect_currency_rates scheduled__2026-06-18T20:40:00+00:00 [queued]>
+[2026-06-18T20:50:01.610+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 4
+[2026-06-18T20:50:01.649+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): collect_currency_rates> on 2026-06-18 20:40:00+00:00
+[2026-06-18T20:50:01.674+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'metals_ingestion_pipeline', 'collect_currency_rates', 'scheduled__2026-06-18T20:40:00+00:00', '--job-id', '37', '--raw', '--subdir', 'DAGS_FOLDER/metals_pipeline.py', '--cfg-path', '/tmp/tmp8_qq1nho']
+[2026-06-18T20:50:01.685+0000] {standard_task_runner.py:91} INFO - Job 37: Subtask collect_currency_rates
+[2026-06-18T20:50:01.718+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=213) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-06-18T20:50:01.724+0000] {standard_task_runner.py:63} INFO - Started process 222 to run task
+[2026-06-18T20:50:02.112+0000] {task_command.py:426} INFO - Running <TaskInstance: metals_ingestion_pipeline.collect_currency_rates scheduled__2026-06-18T20:40:00+00:00 [running]> on host baa3d7daf43a
+[2026-06-18T20:50:03.101+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='metals_ingestion_pipeline' AIRFLOW_CTX_TASK_ID='collect_currency_rates' AIRFLOW_CTX_EXECUTION_DATE='2026-06-18T20:40:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-06-18T20:40:00+00:00'
+[2026-06-18T20:50:03.130+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-06-18T20:50:09.096+0000] {manager.py:78} WARNING - socks5_proxy is deprecated, use proxy_url instead
+[2026-06-18T20:50:09.124+0000] {manager.py:247} ERROR - Connection failed: KafkaConnectionError: 111 ECONNREFUSED
+[2026-06-18T20:50:09.131+0000] {cluster.py:171} INFO - Metadata refresh (node_id=bootstrap-0)
+[2026-06-18T20:50:09.133+0000] {cluster.py:177} ERROR - Metadata refresh: failed NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:09.137+0000] {manager.py:152} ERROR - Bootstrap attempt to bootstrap-0 failed: NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:09.254+0000] {manager.py:247} ERROR - Connection failed: KafkaConnectionError: 111 ECONNREFUSED
+[2026-06-18T20:50:09.256+0000] {cluster.py:171} INFO - Metadata refresh (node_id=bootstrap-0)
+[2026-06-18T20:50:09.257+0000] {cluster.py:177} ERROR - Metadata refresh: failed NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:09.259+0000] {manager.py:152} ERROR - Bootstrap attempt to bootstrap-0 failed: NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:09.719+0000] {manager.py:247} ERROR - Connection failed: KafkaConnectionError: 111 ECONNREFUSED
+[2026-06-18T20:50:09.725+0000] {cluster.py:171} INFO - Metadata refresh (node_id=bootstrap-0)
+[2026-06-18T20:50:09.731+0000] {cluster.py:177} ERROR - Metadata refresh: failed NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:09.739+0000] {manager.py:152} ERROR - Bootstrap attempt to bootstrap-0 failed: NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:11.308+0000] {manager.py:247} ERROR - Connection failed: KafkaConnectionError: 111 ECONNREFUSED
+[2026-06-18T20:50:11.310+0000] {cluster.py:171} INFO - Metadata refresh (node_id=bootstrap-0)
+[2026-06-18T20:50:11.311+0000] {cluster.py:177} ERROR - Metadata refresh: failed NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:11.313+0000] {manager.py:152} ERROR - Bootstrap attempt to bootstrap-0 failed: NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:17.156+0000] {manager.py:247} ERROR - Connection failed: KafkaConnectionError: 111 ECONNREFUSED
+[2026-06-18T20:50:17.158+0000] {cluster.py:171} INFO - Metadata refresh (node_id=bootstrap-0)
+[2026-06-18T20:50:17.161+0000] {cluster.py:177} ERROR - Metadata refresh: failed NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:17.163+0000] {manager.py:152} ERROR - Bootstrap attempt to bootstrap-0 failed: NodeNotReadyError: bootstrap-0
+[2026-06-18T20:50:40.059+0000] {manager.py:172} ERROR - Bootstrap failed: KafkaTimeoutError: Unable to bootstrap from localhost:9092
+[2026-06-18T20:50:40.060+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-06-18T20:50:40.062+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 400, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/metals_pipeline.py", line 27, in run_currencies
+    from Ingestion.producer import publish
+  File "/opt/ingestion/Ingestion/producer.py", line 9, in <module>
+    producer = KafkaProducer(
+               ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/producer/kafka.py", line 534, in __init__
+    manager.bootstrap(self.config['bootstrap_timeout_ms'])
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/manager.py", line 176, in bootstrap
+    self._net.run(self.bootstrap_async, timeout_ms, refresh)
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/selector.py", line 283, in run
+    raise future.exception
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/selector.py", line 357, in wrapper
+    future.success(await self._invoke(coro, *args))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/selector.py", line 376, in _invoke
+    result = await result
+             ^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/future.py", line 165, in __await__
+    raise self.exception
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/selector.py", line 357, in wrapper
+    future.success(await self._invoke(coro, *args))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/selector.py", line 370, in _invoke
+    result = await coro(*args)
+             ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/kafka/net/manager.py", line 163, in _do_bootstrap
+    raise Errors.KafkaTimeoutError(
+kafka.errors.KafkaTimeoutError: KafkaTimeoutError: Unable to bootstrap from localhost:9092
+[2026-06-18T20:50:40.095+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=metals_ingestion_pipeline, task_id=collect_currency_rates, run_id=scheduled__2026-06-18T20:40:00+00:00, execution_date=20260618T204000, start_date=20260618T205001, end_date=20260618T205040
+[2026-06-18T20:50:40.121+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 37 for task collect_currency_rates (KafkaTimeoutError: Unable to bootstrap from localhost:9092; 222)
+[2026-06-18T20:50:40.157+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2026-06-18T20:50:40.186+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
