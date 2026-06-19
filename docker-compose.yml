@@ -9,10 +9,10 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     PYTHONPATH: /opt/ingestion
-    METALS_API_KEY: SYI6BMNC9JSULFV8ADTY966V8ADTY
-    BASE_URL: https://api.metals.dev
-    DB_URL: postgresql://metals_user:password@host.docker.internal:5433/metals_db
-    KAFKA_BOOTSTRAP: host.docker.internal:9092
+    METALS_API_KEY: ${METALS_API_KEY}
+    BASE_URL: ${BASE_URL}
+    DB_URL: ${DB_URL}
+    KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
@@ -27,7 +27,7 @@ services:
     image: postgres:15
     environment:
       POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
+      POSTGRES_PASSWORD: ${POSTGRES_AIRFLOW_PASSWORD}
       POSTGRES_DB: airflow
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
@@ -41,7 +41,7 @@ services:
       - -c
       - |
         airflow db migrate
-        airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
+        airflow users create --username admin --password ${AIRFLOW_ADMIN_PASSWORD} --firstname Admin --lastname User --role Admin --email admin@example.com
     restart: "no"
 
   airflow-webserver:
@@ -54,4 +54,13 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    restart: always
+
+  trino:
+    image: trinodb/trino:latest
+    container_name: trino
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog
     restart: always

@@ -26,4 +26,4 @@ Thumbs.db
 
 # Build
 dist/
-build/
+build/trino/catalog/*.properties
