@@ -1,6 +1,6 @@
 # Ingot — Real-Time Precious Metals Data Pipeline
 
-A real-time and historical data pipeline that collects live precious metal, currency, and benchmark prices, streams them through Kafka, transforms them with Pydantic, stores them in TimescaleDB, and visualizes them through Trino + Grafana. Includes 58 years of historical LBMA benchmark data. Orchestrated with Apache Airflow. 58 years of gold history (1968–2026) and 36 years of palladium history (1990–2026)
+A real-time and historical data pipeline that collects live precious metal, currency, and benchmark prices, streams them through Kafka, transforms them with Pydantic, stores them in TimescaleDB, and visualizes them through Trino + Grafana. Includes 58 years of historical LBMA benchmark data. Orchestrated with Apache Airflow. 58 years of gold history (1968–2026) and 36 years of palladium history (1990–2026) and nearly 80,000 rows
 
 ## Architecture
 
