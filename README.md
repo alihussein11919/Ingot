@@ -1,23 +1,24 @@
 # Ingot — Real-Time Precious Metals Data Pipeline
 
-A real-time data pipeline that collects live precious metal, currency, and benchmark prices, streams them through Kafka, transforms them with Pydantic, stores them in TimescaleDB, and visualizes them through Trino + Grafana. Orchestrated with Apache Airflow.
+A real-time and historical data pipeline that collects live precious metal, currency, and benchmark prices, streams them through Kafka, transforms them with Pydantic, stores them in TimescaleDB, and visualizes them through Trino + Grafana. Includes 58 years of historical LBMA benchmark data. Orchestrated with Apache Airflow.
 
 ## Architecture
 
 ```
-metals.dev API
-      ↓
-Collectors (latest, spot, currencies, authority)
-      ↓
-Kafka Topics
-      ↓
-Consumer → Normalize (Pydantic) → Transform (unit conversion, parsing)
-      ↓
-TimescaleDB
-      ↓
-Trino (SQL query layer)
-      ↓
-Grafana (dashboards)
+metals.dev API (live)              LBMA JSON feed (historical, 1968–present)
+        ↓                                       ↓
+   Collectors                          One-time backfill script
+        ↓                                       ↓
+   Kafka Topics                                 │
+        ↓                                       │
+Consumer → Normalize (Pydantic) → Transform     │
+   (unit conversion: troy oz → grams)           │
+        ↓                                       ↓
+              TimescaleDB (authority_prices)
+                       ↓
+                     Trino
+                       ↓
+                    Grafana
 
 Orchestrated end-to-end by Apache Airflow (scheduled runs)
 ```
@@ -26,7 +27,7 @@ Orchestrated end-to-end by Apache Airflow (scheduled runs)
 
 - **Python 3.11** — core language
 - **Kafka** — message streaming between collection and storage
-- **TimescaleDB** (PostgreSQL extension) — time-series data storage
+- **TimescaleDB** (PostgreSQL extension) — time-series and historical data storage
 - **Pydantic** — data validation and normalization
 - **SQLAlchemy** — database ORM
 - **Apache Airflow** — pipeline scheduling and orchestration
@@ -34,28 +35,29 @@ Orchestrated end-to-end by Apache Airflow (scheduled runs)
 - **Grafana** — dashboards and visualization
 - **Docker / Docker Compose** — containerized infrastructure
 
-## Data Collected
+## Data Sources
 
-| Data | Source Endpoint | Description |
+| Source | Data | Depth |
 |---|---|---|
-| Spot Prices | `/v1/metal/spot` | Real-time gold, silver, platinum, palladium prices |
-| Currency Rates | `/v1/currencies` | 170+ live currency conversion rates |
-| Authority Prices | `/v1/metal/authority` | Official benchmark prices (LBMA AM/PM fixes) |
-| Latest Prices | `/v1/latest` | Combined snapshot of all metals and currencies |
+| metals.dev API | Live spot prices, currency rates, authority benchmark prices | Since pipeline start, updated every Airflow run |
+| LBMA JSON feed | Official AM/PM gold, platinum, palladium fixes; daily silver fix | 1968–present (gold), 1990–present (platinum/palladium), one-time backfill |
 
-All metal prices are stored in **both troy ounces and grams**.
+Both sources converge into the same `authority_prices` table with an identical schema, allowing continuous queries across live and historical eras.
+
+All prices are stored in **grams** (converted from the source troy ounce figures).
 
 ## Project Structure
 
 ```
 Ingestion/
-├── main.py                  # Entry point — runs all collectors
+├── main.py                  # Entry point — runs all live collectors
 ├── consumer.py               # Kafka consumer — writes to TimescaleDB
 ├── producer.py                 # Kafka producer
 ├── api_client.py                # HTTP client for metals.dev API
 ├── config.py                     # Environment config loader
 ├── db_init.py                      # Creates tables and TimescaleDB hypertables
-├── collectors/                       # One file per API endpoint
+├── lbma_backfill.py                  # One-time historical backfill from LBMA
+├── collectors/                         # One file per metals.dev endpoint
 │   ├── latest.py
 │   ├── spot.py
 │   ├── currencies.py
@@ -64,13 +66,13 @@ Ingestion/
 ├── schemas/                          # Pydantic models for validation
 ├── services/
 │   ├── normalize.py                    # Unpacks raw API JSON into structured records
-│   └── transform.py                      # Unit conversion (toz/g), filtering, session parsing
+│   └── transform.py                      # Unit conversion (toz → g), filtering, session parsing
 ├── models/                                 # SQLAlchemy database models
 └── utils/                                    # Logging, retry, datetime helpers (scaffolded)
 
 airflow/
 └── dags/
-    └── metals_pipeline.py            # Scheduled DAG — runs collectors periodically
+    └── metals_pipeline.py            # Scheduled DAG — runs live collectors periodically
 
 trino/
 └── catalog/
@@ -83,15 +85,17 @@ Dockerfile.airflow       # Custom Airflow image with project dependencies instal
 
 ## Database Schema
 
-### `spot_prices`
-Live spot prices per metal, stored in both troy ounces and grams.
+This follows a star schema pattern, with dimensions (metal, currency, authority, unit) denormalized directly into the fact tables — appropriate at this data volume.
+
+### `spot_prices` (fact table — live)
+Live spot prices per metal, in grams.
 
 | Column | Type | Description |
 |---|---|---|
 | `time` | timestamp | UTC collection time |
 | `metal` | string | `gold`, `silver`, `platinum`, `palladium` |
 | `currency` | string | Default `USD` |
-| `unit` | string | `toz` or `g` |
+| `unit` | string | `g` |
 | `price` | float | Current spot price |
 | `bid` / `ask` | float | Buy/sell prices |
 | `high` / `low` | float | Daily range |
@@ -99,8 +103,8 @@ Live spot prices per metal, stored in both troy ounces and grams.
 
 **Primary key:** `(time, metal, currency, unit)`
 
-### `currency_rates`
-Fiat currency exchange rates relative to USD. Metal symbols (XAU, XAG, etc.) are filtered out.
+### `currency_rates` (fact table — live)
+Fiat currency exchange rates relative to USD. Metal ticker symbols (XAU, XAG, etc.) are filtered out.
 
 | Column | Type | Description |
 |---|---|---|
@@ -110,20 +114,26 @@ Fiat currency exchange rates relative to USD. Metal symbols (XAU, XAG, etc.) are
 
 **Primary key:** `(time, currency)`
 
-### `authority_prices`
-Official benchmark prices from market authorities (LBMA, LME, MCX, IBJA), stored in both units.  The London Bullion Market Association and others
+### `authority_prices` (fact table — live + historical)
+Official benchmark prices from market authorities. Currently populated from LBMA, both via metals.dev (live) and the LBMA JSON feed (historical backfill).
 
 | Column | Type | Description |
 |---|---|---|
-| `time` | timestamp | UTC collection time |
-| `authority` | string | `lbma`, `lme`, `mcx`, `ibja` |
-| `metal` | string | Parsed from composite field name |
-| `session` | string | `am`, `pm`, or `default` |
-| `unit` | string | `toz` or `g` |
+| `time` | timestamp | UTC date/time |
+| `authority` | string | `lbma` (schema supports `lme`, `mcx`, `ibja`) |
+| `metal` | string | `gold`, `silver`, `platinum`, `palladium` |
+| `session` | string | `am`, `pm`, or `default` (silver has no AM/PM split) |
+| `unit` | string | `g` |
 | `price` | float | Benchmark price |
 | `currency` | string | Default `USD` |
 
 **Primary key:** `(time, authority, metal, session, unit)`
+
+**Current historical depth:**
+- Gold: 1968–present (AM and PM fixes)
+- Silver: 1968–present (single daily fix)
+- Platinum: 1990–present (AM and PM fixes)
+- Palladium: 1990–present (AM and PM fixes)
 
 ## Setup
 
@@ -164,12 +174,18 @@ docker run -d --name timescaledb -p 5432:5432 \
 python -m Ingestion.db_init
 ```
 
-### 5. Start Airflow, Trino, and Grafana
+### 5. Run the one-time historical backfill
+```bash
+python -m Ingestion.lbma_backfill
+```
+This fetches and loads 58 years of LBMA benchmark data. Safe to re-run — uses upsert, so it won't create duplicates.
+
+### 6. Start Airflow, Trino, and Grafana
 ```bash
 docker compose up -d
 ```
 
-### 6. Run the pipeline manually (without Airflow)
+### 7. Run the live pipeline manually (without Airflow)
 ```bash
 # Terminal 1 — consumer (keep running)
 python -m Ingestion.consumer
@@ -188,25 +204,23 @@ python -m Ingestion.main
 
 ## Dashboards
 
-The Grafana dashboard includes:
-- **Live price overview** — current price per metal
-- **Price trends** — historical price movement, split by scale (gold/platinum vs silver/palladium)
-- **Daily volatility** — price change in dollars and percent
-- **Bid-ask spread** — liquidity indicator, in dollars and percent
-- **Gold-to-silver ratio** — classic trading benchmark
-- **LBMA AM/PM fix comparison**
-- **Currency strength vs USD**
-- **Pipeline health** — last update timestamp, useful for alerting on stale data
+Three dashboards, each telling a different part of the story:
+
+**The Long Arc** — 58 years of gold history in one continuous line, decade-by-decade volatility, and the gold/silver ratio across its full historical range.
+
+**Metal Personalities** — comparative performance of gold, silver, platinum, and palladium normalized to a common starting point, plus rolling volatility per metal to show which behaves most erratically.
+
+**Today in Context** — live spot price compared against all-time high/low and the 10-year average, plus a live-vs-LBMA-fix divergence tracker and pipeline health monitoring.
 
 ## Known Limitations
 
-- **API quota:** the free metals.dev plan allows 100 requests/month. Each pipeline run uses ~7 requests (1 latest + 4 spot + 1 currencies + 1 authority) — schedule the Airflow DAG accordingly.
-- **Historical backfill:** not currently implemented. A 5-year daily backfill would require roughly 7,300 requests, which needs a paid plan (Silver tier, $9.99/month, 10,000 requests/month is sufficient). Revisit when budget allows.
-- **`historical.py`, `utils/`:** scaffolded but not yet implemented.
+- **API quota:** the free metals.dev plan allows 100 requests/month. Each pipeline run uses ~7 requests — schedule the Airflow DAG accordingly.
+- **LBMA data licensing:** the JSON feed used for backfill is intended for individual/personal use (as used by tools like Portfolio Performance). Official licensed historical data requires an IBA or LME license for commercial use — see lbma.org.uk for details.
+- **`historical.py` (metals.dev collector), `utils/`:** scaffolded but not yet implemented; superseded by the LBMA backfill for historical needs.
 
 ## Roadmap
 
-- [ ] Historical data backfill (pending budget for paid API tier)
-- [ ] Grafana alerting rules (price spikes, stale data)
+- [ ] Grafana alerting rules (price spikes, stale data, pipeline failures)
 - [ ] CI/CD for automated testing
 - [ ] Production-grade secrets management
+- [ ] Periodic re-sync of LBMA data (currently a one-time backfill; could add a small monthly job to catch any LBMA corrections/updates)
