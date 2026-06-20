@@ -111,7 +111,7 @@ Fiat currency exchange rates relative to USD. Metal symbols (XAU, XAG, etc.) are
 **Primary key:** `(time, currency)`
 
 ### `authority_prices`
-Official benchmark prices from market authorities (LBMA, LME, MCX, IBJA), stored in both units.
+Official benchmark prices from market authorities (LBMA, LME, MCX, IBJA), stored in both units.  The London Bullion Market Association and others
 
 | Column | Type | Description |
 |---|---|---|
