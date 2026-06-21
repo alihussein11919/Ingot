@@ -210,7 +210,17 @@ Three dashboards, each telling a different part of the story:
 
 **The Long Arc** — 58 years of gold history in one continuous line, decade-by-decade volatility, and the gold/silver ratio across its full historical range.
 
+
+<img width="1780" height="1335" alt="Ingot 2-1782052140025" src="https://github.com/user-attachments/assets/72402d38-317e-4777-9545-48860fe6b004" />
+
+
+
+
 **Metal Personalities** — comparative performance of gold, silver, platinum, and palladium normalized to a common starting point, plus rolling volatility per metal to show which behaves most erratically.
+
+
+<img width="1780" height="1400" alt="Ingot final-1782052471950" src="https://github.com/user-attachments/assets/b96c5677-5e72-4acf-9438-1645072a5dd6" />
+
 
 **Today in Context** — live spot price compared against all-time high/low and the 10-year average, plus a live-vs-LBMA-fix divergence tracker and pipeline health monitoring.
 
