@@ -22,7 +22,7 @@ Consumer → Normalize (Pydantic) → Transform     │
 
 Orchestrated end-to-end by Apache Airflow (scheduled runs)
 ```
-<img width="2660" height="1538" alt="ingot_pipeline" src="https://github.com/user-attachments/assets/78e62fc4-c34e-4579-a11b-e10cabffd2b3" />
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/21527eeb-8474-4c7a-8f01-bf0a0b09c9ba" />
 
 
 ## Tech Stack
